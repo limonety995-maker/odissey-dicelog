@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Odyssey Combat Log</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Odyssey System</p>
+          <h1>Combat Log</h1>
+          <p class="hero-sub">
+            Dedicated live log viewer for room-wide attacks, rolls, and debug combat tables.
+          </p>
+        </div>
+        <button id="refreshBtn" type="button" class="ghost-button">Refresh</button>
+      </header>
+
+      <section class="status-card">
+        <div class="status-top">
+          <span id="liveBadge" class="live-badge">Waiting</span>
+          <span id="entryCount" class="entry-count">0 entries</span>
+        </div>
+        <p id="statusBox" class="status-text">Connecting to room log...</p>
+        <div class="meta-grid">
+          <div class="meta-cell">
+            <span class="meta-label">Viewer</span>
+            <span id="viewerName" class="meta-value">Loading...</span>
+          </div>
+          <div class="meta-cell">
+            <span class="meta-label">Role</span>
+            <span id="viewerRole" class="meta-value">...</span>
+          </div>
+          <div class="meta-cell meta-cell-wide">
+            <span class="meta-label">Last Sync</span>
+            <span id="lastSync" class="meta-value">Not synced yet</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="log-shell">
+        <div class="log-head">
+          <div>
+            <p class="section-kicker">Room Feed</p>
+            <h2>Recent Events</h2>
+          </div>
+        </div>
+
+        <div id="emptyState" class="empty-state">
+          <p class="empty-title">No combat entries yet</p>
+          <p class="empty-body">
+            As soon as the main Odyssey extension rolls attacks or checks, the shared room log will
+            appear here.
+          </p>
+        </div>
+
+        <div id="logEntries" class="log-entries"></div>
+      </section>
+    </div>
+
+    <script type="module" src="./assets/main.js?v=0.1.0"></script>
+  </body>
+</html>
