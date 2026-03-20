@@ -2,6 +2,10 @@
 
 Standalone Owlbear Rodeo extension for viewing the shared Odyssey System combat log.
 
+Install manifest after GitHub Pages is active:
+
+- `https://limonety995-maker.github.io/odissey-dicelog/manifest.json`
+
 ## What it does
 
 - Opens as a separate Owlbear extension
