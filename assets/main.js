@@ -3518,6 +3518,7 @@ var lib_default = OBR;
 var DEBUG_LOG_KEY = "com.codex.body-hp/debugLog";
 var DEBUG_BROADCAST_CHANNEL = "com.codex.body-hp/debug";
 var ENTRY_LIMIT = 60;
+var POLL_INTERVAL_MS = 2e3;
 var ui = {
   refreshBtn: document.getElementById("refreshBtn"),
   liveBadge: document.getElementById("liveBadge"),
@@ -3533,6 +3534,7 @@ var debugEntries = [];
 var viewerName = "Unknown";
 var viewerRole = "PLAYER";
 var lastSyncLabel = "Not synced yet";
+var roomRefreshTimer = null;
 function escapeHtml(value) {
   return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
@@ -3613,9 +3615,17 @@ function renderEntries() {
         </article>`
   ).join("");
 }
-async function refreshFromRoom(label = "Room refresh") {
+function haveEntriesChanged(nextEntries) {
+  if (debugEntries.length !== nextEntries.length) return true;
+  return debugEntries.some((entry, index) => entry.id !== nextEntries[index]?.id);
+}
+async function refreshFromRoom(label = "Room refresh", options = {}) {
+  const { quiet = false } = options;
   const metadata = await lib_default.room.getMetadata();
-  debugEntries = mergeDebugEntries(metadata?.[DEBUG_LOG_KEY], debugEntries);
+  const nextEntries = mergeDebugEntries(metadata?.[DEBUG_LOG_KEY], debugEntries);
+  const changed = haveEntriesChanged(nextEntries);
+  debugEntries = nextEntries;
+  if (quiet && !changed) return;
   setSyncState(label);
   setStatus("Connected to the shared Odyssey combat log.");
   renderEntries();
@@ -3660,6 +3670,11 @@ lib_default.onReady(async () => {
       setStatus("Room log updated.");
       renderEntries();
     });
+    roomRefreshTimer = window.setInterval(() => {
+      void refreshFromRoom("Fallback poll", { quiet: true }).catch((error) => {
+        console.warn("[Odyssey Combat Log] Poll refresh failed", error);
+      });
+    }, POLL_INTERVAL_MS);
   } catch (error) {
     console.error("[Odyssey Combat Log] Initialization failed", error);
     setStatus(error?.message ?? "Combat log extension failed to initialize.");

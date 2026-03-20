@@ -4,6 +4,7 @@ import OBR from "@owlbear-rodeo/sdk";
 const DEBUG_LOG_KEY = "com.codex.body-hp/debugLog";
 const DEBUG_BROADCAST_CHANNEL = "com.codex.body-hp/debug";
 const ENTRY_LIMIT = 60;
+const POLL_INTERVAL_MS = 2000;
 
 const ui = {
   refreshBtn: document.getElementById("refreshBtn"),
@@ -21,6 +22,7 @@ let debugEntries = [];
 let viewerName = "Unknown";
 let viewerRole = "PLAYER";
 let lastSyncLabel = "Not synced yet";
+let roomRefreshTimer = null;
 
 function escapeHtml(value) {
   return String(value)
@@ -127,9 +129,20 @@ function renderEntries() {
     .join("");
 }
 
-async function refreshFromRoom(label = "Room refresh") {
+function haveEntriesChanged(nextEntries) {
+  if (debugEntries.length !== nextEntries.length) return true;
+  return debugEntries.some((entry, index) => entry.id !== nextEntries[index]?.id);
+}
+
+async function refreshFromRoom(label = "Room refresh", options = {}) {
+  const { quiet = false } = options;
   const metadata = await OBR.room.getMetadata();
-  debugEntries = mergeDebugEntries(metadata?.[DEBUG_LOG_KEY], debugEntries);
+  const nextEntries = mergeDebugEntries(metadata?.[DEBUG_LOG_KEY], debugEntries);
+  const changed = haveEntriesChanged(nextEntries);
+  debugEntries = nextEntries;
+
+  if (quiet && !changed) return;
+
   setSyncState(label);
   setStatus("Connected to the shared Odyssey combat log.");
   renderEntries();
@@ -181,6 +194,12 @@ OBR.onReady(async () => {
       setStatus("Room log updated.");
       renderEntries();
     });
+
+    roomRefreshTimer = window.setInterval(() => {
+      void refreshFromRoom("Fallback poll", { quiet: true }).catch((error) => {
+        console.warn("[Odyssey Combat Log] Poll refresh failed", error);
+      });
+    }, POLL_INTERVAL_MS);
   } catch (error) {
     console.error("[Odyssey Combat Log] Initialization failed", error);
     setStatus(error?.message ?? "Combat log extension failed to initialize.");

@@ -1,6 +1,6 @@
 {
   "name": "Odyssey Combat Log",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "manifest_version": 1,
   "description": "Dedicated live combat log viewer for Odyssey System.",
   "author": "Codex",
@@ -8,7 +8,7 @@
   "action": {
     "title": "Odyssey Combat Log",
     "icon": "https://limonety995-maker.github.io/odissey-dicelog/icon.svg",
-    "popover": "https://limonety995-maker.github.io/odissey-dicelog/index.html?v=0.1.1",
+    "popover": "https://limonety995-maker.github.io/odissey-dicelog/index.html?v=0.1.2",
     "height": 780,
     "width": 520
   }
